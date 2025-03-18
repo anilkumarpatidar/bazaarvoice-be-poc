@@ -2,7 +2,7 @@ import { Static, Type } from '@sinclair/typebox';
 
 const SecondaryRatingViewModel = Type.Object({
   name: Type.String(),
-  value: Type.Number(),
+  value: Type.Union([Type.Number(), Type.Undefined()]),
   valueRange: Type.Number(),
 });
 
@@ -37,6 +37,21 @@ const RatingDistributionViewModel = Type.Object({
   count: Type.Number(),
 });
 
+export const ReviewComment = Type.Object({
+  id: Type.Number(),
+  userName: Type.String(),
+  lastModificationTime: Type.String(),
+  title: Type.String(),
+  cardText: Type.String(),
+  negativeFeedbackCount: Type.Number(),
+  positiveFeedbackCount: Type.Number(),
+});
+
+const ReviewError = Type.Object({
+  message: Type.String(),
+  code: Type.String(),
+});
+
 export const DeviceReviewModel = Type.Object({
   limit: Type.Number(),
   offset: Type.Number(),
@@ -45,8 +60,10 @@ export const DeviceReviewModel = Type.Object({
   //featuredReview: Type.Object(DeviceReviewItemViewModel),
   reviews: Type.Array(DeviceReviewItemViewModel),
   ratingDistributions: Type.Union([Type.Array(RatingDistributionViewModel), Type.Null()]),
-  //secondaryAverageRatings: Type.Array(SecondaryRatingViewModel),
+  secondaryAverageRatings: Type.Array(SecondaryRatingViewModel),
   hasErrors: Type.Boolean(),
+  allComments: Type.Union([Type.Array(ReviewComment), Type.Null()]),
+  errors: Type.Optional(Type.Union([Type.Array(ReviewError), Type.Null()])),
 });
 
 export type secondaryRatingSchema = Static<typeof SecondaryRatingViewModel>;
@@ -54,3 +71,7 @@ export type deviceReviewModelSchema = Static<typeof DeviceReviewModel>;
 export type deviceReviewItemModelSchema = Static<typeof DeviceReviewItemViewModel>;
 export type reviewCommentsIdSchema = Static<typeof ReviewCommentsId>;
 export type devicePhotoViewModelSchema = Static<typeof DevicePhotoViewModel>;
+export type reviewCommentSchema = Static<typeof ReviewComment>;
+export type ratingDistributionViewModelSchema = Static<typeof RatingDistributionViewModel>;
+export type ratingSecondaryRatingViewModelSchema = Static<typeof SecondaryRatingViewModel>;
+export type reviewErrorModelSchema = Static<typeof ReviewError>

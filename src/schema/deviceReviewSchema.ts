@@ -6,19 +6,35 @@ export interface BazaarvoiceDeviceReviewSchema {
   Results: Result[];
   Includes: Includes;
   HasErrors: boolean;
-  Errors: any[];
+  Errors: ReviewError[];
+}
+
+export interface ReviewError{
+  Message: string,
+  Code: string
 }
 
 export interface Includes {
   Products: Products;
   ProductsOrder: string[];
+  Comments: Comments[];
+}
+
+export interface Comments {
+  Id: number;
+  Title: string;
+  ReviewText: string;
+  UserNickname: string;
+  SubmissionTime: string;
+  TotalNegativeFeedbackCount: number;
+  TotalPositiveFeedbackCount: number;
 }
 
 export interface Products {
-  'data-gen-moppq9ekthfzbc6qff3bqokie': DataGenMoppq9Ekthfzbc6Qff3Bqokie;
+  [key: string]: Product;
 }
 
-export interface DataGenMoppq9Ekthfzbc6Qff3Bqokie {
+export interface Product {
   Description: string;
   ImageUrl: string;
   Name: string;
