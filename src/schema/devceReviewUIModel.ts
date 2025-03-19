@@ -1,6 +1,6 @@
 import { Static, Type } from '@sinclair/typebox';
 
-const SecondaryRatingViewModel = Type.Object({
+export const SecondaryRatingViewModel = Type.Object({
   name: Type.String(),
   value: Type.Union([Type.Number(), Type.Undefined()]),
   valueRange: Type.Number(),
@@ -57,7 +57,6 @@ export const DeviceReviewModel = Type.Object({
   offset: Type.Number(),
   totalReviewsCount: Type.Number(),
   overallRatingRange: Type.Number(),
-  //featuredReview: Type.Object(DeviceReviewItemViewModel),
   reviews: Type.Array(DeviceReviewItemViewModel),
   ratingDistributions: Type.Union([Type.Array(RatingDistributionViewModel), Type.Null()]),
   secondaryAverageRatings: Type.Array(SecondaryRatingViewModel),

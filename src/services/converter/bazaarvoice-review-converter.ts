@@ -1,5 +1,6 @@
 import {
   BazaarvoiceDeviceReviewSchema,
+  FilteredReviewStatistics,
   Photo,
   Product,
   Result,
@@ -16,44 +17,46 @@ import {
   ratingSecondaryRatingViewModelSchema,
   reviewErrorModelSchema,
 } from '../../schema/devceReviewUIModel';
+import {
+  deviceReviewItemSchema,
+  deviceReviewWithImageSchema,
+  imageReviewSchema,
+} from '../../schema/deviceReviewWithImageViewModel';
 
-function convertError(data: BazaarvoiceDeviceReviewSchema){
+function convertError(data: BazaarvoiceDeviceReviewSchema) {
   const errorData = {
     hasErrors: data.HasErrors,
-    errors: getErrors(data.Errors)
-  }
+    errors: getErrors(data.Errors),
+  };
 }
-
 
 function convert(
   data: BazaarvoiceDeviceReviewSchema,
   featuredReviewData: BazaarvoiceDeviceReviewSchema,
 ): deviceReviewModelSchema {
-  
-    const deviceReviewUIData = {
-      limit: data.Limit,
-      offset: data.Offset,
-      totalReviewsCount: data.TotalResults,
-      overallRatingRange: getOverallRatingRange(data),
-      featuredReview: getFeaturedReview(featuredReviewData),
-      reviews: getDeviceReview(data),
-      ratingDistributions: getRatingDistributions(data),
-      secondaryAverageRatings: getSecondaryAverageRatings(data),
-      hasErrors: data.HasErrors,
-      allComments: getAllComments(data),
-    };
+  const deviceReviewUIData = {
+    limit: data.Limit,
+    offset: data.Offset,
+    totalReviewsCount: data.TotalResults,
+    overallRatingRange: getOverallRatingRange(data),
+    featuredReview: getFeaturedReview(featuredReviewData),
+    reviews: getDeviceReview(data),
+    ratingDistributions: getRatingDistributions(data),
+    secondaryAverageRatings: getSecondaryAverageRatings(data),
+    hasErrors: data.HasErrors,
+    allComments: getAllComments(data),
+  };
 
-    return deviceReviewUIData;
-  
+  return deviceReviewUIData;
 }
 
-function getErrors(errors: ReviewError[]){
-  const errorList : reviewErrorModelSchema[]=[];
-  errors.forEach(error => {
-    const reviewError={
+function getErrors(errors: ReviewError[]) {
+  const errorList: reviewErrorModelSchema[] = [];
+  errors.forEach((error) => {
+    const reviewError = {
       message: error.Message,
-      code: error.Code
-    }
+      code: error.Code,
+    };
     errorList.push(reviewError);
   });
   return errorList;
@@ -210,7 +213,13 @@ function getSecondaryRating(result: Result): secondaryRatingSchema[] | null {
 //actual value need to set
 function getOverallRatingRange(data: BazaarvoiceDeviceReviewSchema) {
   if (data.Includes && data.Includes.Products) {
-    return data.Includes.Products[getProductKey(data)].FilteredReviewStatistics.OverallRatingRange;
+    const product = data.Includes.Products[getProductKey(data)];
+
+    let reviewStatistics: FilteredReviewStatistics = product.FilteredReviewStatistics;
+    if (reviewStatistics === undefined) {
+      reviewStatistics = product.ReviewStatistics;
+    }
+    return reviewStatistics.OverallRatingRange;
   }
   return 0;
 }
@@ -220,5 +229,34 @@ function getProductKey(data: BazaarvoiceDeviceReviewSchema) {
   return productKey;
 }
 
-export {convert, convertError};
+function reviewWithImageConvert(
+  deviceReview: deviceReviewModelSchema,
+): deviceReviewWithImageSchema {
+  const reviewItems: deviceReviewItemModelSchema[] = deviceReview.reviews;
+  const imageReviewList: imageReviewSchema[] = [];
+  reviewItems.forEach((reviewObj) => {
+    const photos = reviewObj.photos;
+    reviewObj.photos = [];
+    photos.forEach((photoObj) => {
+      const imageReview = {
+        photo: photoObj,
+        review: reviewObj,
+      };
+      console.log(`Photo ${JSON.stringify(imageReview.photo)}`);
+      console.log(`review ${JSON.stringify(imageReview.review)}`);
+      imageReviewList.push(imageReview);
+    });
+  });
 
+  const deviceReviewWithImage = {
+    offset: reviewItems.length,
+    imageReviews: imageReviewList,
+  };
+  return deviceReviewWithImage;
+}
+
+function convertReviews(review: deviceReviewItemModelSchema) {
+  const photos: devicePhotoViewModelSchema[] = review.photos;
+}
+
+export { convert, convertError, reviewWithImageConvert };

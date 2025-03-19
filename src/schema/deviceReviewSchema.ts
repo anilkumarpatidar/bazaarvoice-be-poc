@@ -57,6 +57,7 @@ export interface Product {
   FamilyIds: any[];
   BrandExternalId: null;
   FilteredReviewStatistics: FilteredReviewStatistics;
+  ReviewStatistics: FilteredReviewStatistics;
 }
 
 export interface AdditionalFields {}
